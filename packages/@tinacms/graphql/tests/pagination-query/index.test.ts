@@ -57,6 +57,32 @@ it('handles pagination with forward and backward navigation', async () => {
           hasPreviousPage
           startCursor
         }
+      },
+      paginatedAscFinalPage: movieConnection(sort: "releaseDate", first: 10, after: "NDQ3NjM4NDAwMDAwHW1vdmllcy9tb3ZpZS1nYW1tYS5tZA==") {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      },
+      paginatedDescFinalPage: movieConnection(sort: "releaseDate", last: 10, before: "NDQ3NjM4NDAwMDAwHW1vdmllcy9tb3ZpZS1nYW1tYS5tZA==") {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
       }
     }`,
     variables: {},
