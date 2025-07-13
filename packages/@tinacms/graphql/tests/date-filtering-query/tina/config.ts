@@ -24,12 +24,6 @@ export const schema: Schema = {
           label: 'Release Date',
           type: 'datetime',
         },
-        {
-          name: 'body',
-          label: 'Body',
-          type: 'string',
-          isBody: true,
-        },
       ],
       indexes: [
         {
