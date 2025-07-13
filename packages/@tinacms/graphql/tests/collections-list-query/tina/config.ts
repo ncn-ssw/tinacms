@@ -11,8 +11,6 @@ export const schema: Schema = {
         author: 'Anonymous',
         date: '2024-01-01T00:00:00.000Z',
       },
-      frontmatterFormat: 'yaml',
-      frontmatterDelimiters: '---',
       fields: [
         {
           type: 'string',
@@ -44,8 +42,6 @@ export const schema: Schema = {
         title: 'New Page',
         slug: 'new-page',
       },
-      frontmatterFormat: 'yaml',
-      frontmatterDelimiters: '---',
       fields: [
         {
           type: 'string',
@@ -72,8 +68,6 @@ export const schema: Schema = {
         name: 'New Author',
         bio: 'Author bio',
       },
-      frontmatterFormat: 'yaml',
-      frontmatterDelimiters: '---',
       fields: [
         {
           type: 'string',
