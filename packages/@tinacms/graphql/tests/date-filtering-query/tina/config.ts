@@ -1,6 +1,6 @@
 /**
  * Date Filtering Query Test - TinaCMS Schema Configuration
- * 
+ *
  * Focused schema for testing date filtering operations (after, before, between)
  * on the releaseDate field.
  */

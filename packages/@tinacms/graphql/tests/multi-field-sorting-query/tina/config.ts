@@ -26,12 +26,9 @@ export const schema: Schema = {
       indexes: [
         {
           name: 'release-rating',
-          fields: [
-            { name: 'releaseDate' },
-            { name: 'rating' }
-          ]
-        }
-      ]
+          fields: [{ name: 'releaseDate' }, { name: 'rating' }],
+        },
+      ],
     },
   ],
 };
