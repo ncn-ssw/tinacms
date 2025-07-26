@@ -97,7 +97,7 @@ export const setupMutation = async (dir: string, config: any) => {
     tinaDirectory: 'tina',
   });
   await database.indexContent(await buildSchema(config));
-  
+
   const get = async (options?: {
     query: string;
     variables: Record<string, unknown>;
@@ -109,11 +109,14 @@ export const setupMutation = async (dir: string, config: any) => {
     });
     return result;
   };
-  
+
   return { get, bridge };
 };
 
-export const loadVariables = async (dir: string, filename = 'variables.json') => {
+export const loadVariables = async (
+  dir: string,
+  filename = 'variables.json'
+) => {
   const variablesPath = path.join(dir, filename);
   if (await fs.pathExists(variablesPath)) {
     return JSON.parse(await fs.readFile(variablesPath, 'utf-8'));
