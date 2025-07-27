@@ -1,0 +1,17 @@
+{
+  "errors": [
+    {
+      "message": "Unable to find collection for path invalid-path.md",
+      "locations": [
+        {
+          "line": 3,
+          "column": 7
+        }
+      ],
+      "path": [
+        "addPendingDocument"
+      ]
+    }
+  ],
+  "data": null
+}

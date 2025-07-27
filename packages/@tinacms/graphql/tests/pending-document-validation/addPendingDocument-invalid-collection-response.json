@@ -1,0 +1,20 @@
+{
+  "errors": [
+    {
+      "message": "\"collection\" must be one of: [post] but got nonexistent",
+      "locations": [
+        {
+          "line": 3,
+          "column": 5
+        }
+      ],
+      "path": [
+        "addPendingDocument"
+      ],
+      "extensions": {
+        "stack": "ValidationError: this must be one of the following values: post\n    at Object.createError (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/createValidation.js:54:21)\n    at Object.test (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/schema.js:505:55)\n    at validate (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/createValidation.js:86:21)\n    at runTests (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/runTests.js:39:5)\n    at /workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/schema.js:255:29\n    at /workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/runTests.js:17:5\n    at finishTestRun (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/runTests.js:67:9)\n    at validate (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/createValidation.js:96:103)\n    at runTests (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/util/runTests.js:39:5)\n    at BaseSchema._validate (/workspaces/tinacms/node_modules/.pnpm/yup@0.32.11/node_modules/yup/lib/schema.js:246:27)"
+      }
+    }
+  ],
+  "data": null
+}
