@@ -18,16 +18,16 @@ it('executes mutation with variables and validates bridge writes', async () => {
   const { get, bridge } = await setupMutation(__dirname, config);
   const variables = await loadVariables(__dirname);
 
-  const result = await get({ 
-    query: updateMutation, 
-    variables 
+  const result = await get({
+    query: updateMutation,
+    variables,
   });
 
   expect(format(result)).toMatchFileSnapshot('node.json');
 
   const writes = bridge.getWrites();
   expect(writes.size).toBeGreaterThan(0);
-  
+
   const movieWrite = bridge.getWrite('movies/in.md');
   expect(movieWrite).toBeDefined();
   expect(movieWrite).toMatchFileSnapshot('updated-movie-content.md');
