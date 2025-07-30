@@ -44,12 +44,62 @@ it('updates document and validates bridge writes', async () => {
   });
 
   // Validate GraphQL response
-  expect(format(result)).toMatchFileSnapshot('node.json');
+  expect(format(result)).toMatchFileSnapshot('update-document-node.json');
 
   // Validate Bridge write operations
   const writes = bridge.getWrites();
   expect(writes.size).toBeGreaterThan(0);
   expect(bridge.getWrite('posts/in.md')).toMatchFileSnapshot(
-    'updated-document-content.md'
+    'update-document-content.md'
+  );
+});
+
+const updatePostMutation = `
+  mutation {
+    updatePost(
+      relativePath: "in.md", 
+      params: {
+        title: "Updated Title by Mr Bob Northwind via updatePost"
+        genre: "thriller"
+        rating: 8
+        body: {
+          type: "root"
+          children: [
+            {
+              type: "p"
+              children: [
+                {
+                  type: "text"
+                  text: "This is the updated content for Mr Bob Northwind's post about Northwind via updatePost. The company continues to thrive under his leadership."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ) {
+      _values
+      _sys { title }
+    }
+  }
+`;
+
+it('updates document using updatePost mutation', async () => {
+  const { get, bridge } = await setupMutation(__dirname, config);
+
+  // Execute updatePost mutation
+  const result = await get({
+    query: updatePostMutation,
+    variables: {},
+  });
+
+  // Validate GraphQL response
+  expect(format(result)).toMatchFileSnapshot('update-post-node.json');
+
+  // Validate Bridge write operations
+  const writes = bridge.getWrites();
+  expect(writes.size).toBeGreaterThan(0);
+  expect(bridge.getWrite('posts/in.md')).toMatchFileSnapshot(
+    'update-post-content.md'
   );
 });
