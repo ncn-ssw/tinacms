@@ -1,12 +1,14 @@
 import { it, expect } from 'vitest';
 import config from './tina/config';
-import { setup, format } from '../util';
+import { setup } from '../util';
 
-it('handles pagination with forward and backward navigation', async () => {
+it('handles forward pagination through to last page', async () => {
   const { get } = await setup(__dirname, config);
-  const result = await get({
+
+  // First page
+  const firstPage = await get({
     query: `query {
-      paginatedAsc: movieConnection(sort: "releaseDate", first: 1) {
+      movieConnection(sort: "releaseDate", first: 1) {
         edges {
           node {
             id
@@ -18,8 +20,25 @@ it('handles pagination with forward and backward navigation', async () => {
           hasNextPage
           endCursor
         }
-      },
-      paginatedAscPage2: movieConnection(sort: "releaseDate", first: 2, after: "MjMzMzY2NDAwMDAwHW1vdmllcy9tb3ZpZS1hbHBoYS5tZA==") {
+      }
+    }`,
+    variables: {},
+  });
+
+  expect(firstPage.data).toBeDefined();
+  expect(firstPage.data!.movieConnection.edges).toHaveLength(1);
+  expect(firstPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-alpha.md'
+  );
+  expect(firstPage.data!.movieConnection.edges[0].node.title).toBe(
+    'Movie Alpha'
+  );
+  expect(firstPage.data!.movieConnection.pageInfo.hasNextPage).toBe(true);
+
+  // Second page
+  const secondPage = await get({
+    query: `query($after: String) {
+      movieConnection(sort: "releaseDate", first: 2, after: $after) {
         edges {
           node {
             id
@@ -31,34 +50,25 @@ it('handles pagination with forward and backward navigation', async () => {
           hasNextPage
           endCursor
         }
-      },
-      paginatedDesc: movieConnection(sort: "releaseDate", last: 1) {
-        edges {
-          node {
-            id
-            title
-            releaseDate
-          }
-        }
-        pageInfo {
-          hasPreviousPage
-          startCursor
-        }
-      },
-      paginatedDescPage2: movieConnection(sort: "releaseDate", last: 2, before: "ODA5MDQ5NjAwMDAwHW1vdmllcy9tb3ZpZS1lcHNpbG9uLm1k") {
-        edges {
-          node {
-            id
-            title
-            releaseDate
-          }
-        }
-        pageInfo {
-          hasPreviousPage
-          startCursor
-        }
-      },
-      paginatedAscFinalPage: movieConnection(sort: "releaseDate", first: 10, after: "NDQ3NjM4NDAwMDAwHW1vdmllcy9tb3ZpZS1nYW1tYS5tZA==") {
+      }
+    }`,
+    variables: { after: firstPage.data!.movieConnection.pageInfo.endCursor },
+  });
+
+  expect(secondPage.data).toBeDefined();
+  expect(secondPage.data!.movieConnection.edges).toHaveLength(2);
+  expect(secondPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-beta.md'
+  );
+  expect(secondPage.data!.movieConnection.edges[1].node.id).toBe(
+    'movies/movie-gamma.md'
+  );
+  expect(secondPage.data!.movieConnection.pageInfo.hasNextPage).toBe(true);
+
+  // Final page
+  const finalPage = await get({
+    query: `query($after: String) {
+      movieConnection(sort: "releaseDate", first: 2, after: $after) {
         edges {
           node {
             id
@@ -70,8 +80,29 @@ it('handles pagination with forward and backward navigation', async () => {
           hasNextPage
           endCursor
         }
-      },
-      paginatedDescFinalPage: movieConnection(sort: "releaseDate", last: 10, before: "NDQ3NjM4NDAwMDAwHW1vdmllcy9tb3ZpZS1nYW1tYS5tZA==") {
+      }
+    }`,
+    variables: { after: secondPage.data!.movieConnection.pageInfo.endCursor },
+  });
+
+  expect(finalPage.data).toBeDefined();
+  expect(finalPage.data!.movieConnection.edges).toHaveLength(2);
+  expect(finalPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-delta.md'
+  );
+  expect(finalPage.data!.movieConnection.edges[1].node.id).toBe(
+    'movies/movie-epsilon.md'
+  );
+  expect(finalPage.data!.movieConnection.pageInfo.hasNextPage).toBe(false);
+});
+
+it('handles backward pagination through to first page', async () => {
+  const { get } = await setup(__dirname, config);
+
+  // Last page
+  const lastPage = await get({
+    query: `query {
+      movieConnection(sort: "releaseDate", last: 1) {
         edges {
           node {
             id
@@ -87,5 +118,270 @@ it('handles pagination with forward and backward navigation', async () => {
     }`,
     variables: {},
   });
-  expect(format(result)).toMatchFileSnapshot('node.json');
+
+  expect(lastPage.data).toBeDefined();
+  expect(lastPage.data!.movieConnection.edges).toHaveLength(1);
+  expect(lastPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-epsilon.md'
+  );
+  expect(lastPage.data!.movieConnection.edges[0].node.title).toBe(
+    'Movie Epsilon'
+  );
+  expect(lastPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(true);
+
+  // Previous page
+  const previousPage = await get({
+    query: `query($before: String) {
+      movieConnection(sort: "releaseDate", last: 2, before: $before) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }`,
+    variables: { before: lastPage.data!.movieConnection.pageInfo.startCursor },
+  });
+
+  expect(previousPage.data).toBeDefined();
+  expect(previousPage.data!.movieConnection.edges).toHaveLength(2);
+  expect(previousPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-delta.md'
+  );
+  expect(previousPage.data!.movieConnection.edges[1].node.id).toBe(
+    'movies/movie-gamma.md'
+  );
+  expect(previousPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(
+    true
+  );
+
+  // First page
+  const firstPage = await get({
+    query: `query($before: String) {
+      movieConnection(sort: "releaseDate", last: 2, before: $before) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }`,
+    variables: {
+      before: previousPage.data!.movieConnection.pageInfo.startCursor,
+    },
+  });
+
+  expect(firstPage.data).toBeDefined();
+  expect(firstPage.data!.movieConnection.edges).toHaveLength(2);
+  expect(firstPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-gamma.md'
+  );
+  expect(firstPage.data!.movieConnection.edges[1].node.id).toBe(
+    'movies/movie-beta.md'
+  );
+  expect(firstPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(true);
+
+  // Get the very first page
+  const veryFirstPage = await get({
+    query: `query($before: String) {
+      movieConnection(sort: "releaseDate", last: 1, before: $before) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }`,
+    variables: { before: firstPage.data!.movieConnection.pageInfo.startCursor },
+  });
+
+  expect(veryFirstPage.data).toBeDefined();
+  expect(veryFirstPage.data!.movieConnection.edges).toHaveLength(1);
+  expect(veryFirstPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-beta.md'
+  );
+  expect(veryFirstPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(
+    true
+  );
+
+  // Get the actual first page
+  const actualFirstPage = await get({
+    query: `query($before: String) {
+      movieConnection(sort: "releaseDate", last: 1, before: $before) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }`,
+    variables: {
+      before: veryFirstPage.data!.movieConnection.pageInfo.startCursor,
+    },
+  });
+
+  expect(actualFirstPage.data).toBeDefined();
+  expect(actualFirstPage.data!.movieConnection.edges).toHaveLength(1);
+  expect(actualFirstPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-alpha.md'
+  );
+  expect(actualFirstPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(
+    false
+  );
+});
+
+it('handles forward pagination when over-requesting items', async () => {
+  const { get } = await setup(__dirname, config);
+
+  // Get first 2 items to establish a cursor
+  const firstPages = await get({
+    query: `query {
+      movieConnection(sort: "releaseDate", first: 2) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }`,
+    variables: {},
+  });
+
+  expect(firstPages.data).toBeDefined();
+  expect(firstPages.data!.movieConnection.edges).toHaveLength(2);
+  expect(firstPages.data!.movieConnection.pageInfo.hasNextPage).toBe(true);
+
+  // Request 10 items but only 3 remain
+  const overRequestPage = await get({
+    query: `query($after: String) {
+      movieConnection(sort: "releaseDate", first: 10, after: $after) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }`,
+    variables: { after: firstPages.data!.movieConnection.pageInfo.endCursor },
+  });
+
+  expect(overRequestPage.data).toBeDefined();
+  expect(overRequestPage.data!.movieConnection.edges).toHaveLength(3);
+  expect(overRequestPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-gamma.md'
+  );
+  expect(overRequestPage.data!.movieConnection.edges[1].node.id).toBe(
+    'movies/movie-delta.md'
+  );
+  expect(overRequestPage.data!.movieConnection.edges[2].node.id).toBe(
+    'movies/movie-epsilon.md'
+  );
+  expect(overRequestPage.data!.movieConnection.pageInfo.hasNextPage).toBe(
+    false
+  );
+});
+
+it('handles backward pagination when over-requesting items', async () => {
+  const { get } = await setup(__dirname, config);
+
+  // Get last 1 item to establish a cursor
+  const lastPage = await get({
+    query: `query {
+      movieConnection(sort: "releaseDate", last: 1) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }`,
+    variables: {},
+  });
+
+  expect(lastPage.data).toBeDefined();
+  expect(lastPage.data!.movieConnection.edges).toHaveLength(1);
+  expect(lastPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-epsilon.md'
+  );
+  expect(lastPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(true);
+
+  // Request 10 items but only 4 remain before epsilon
+  const overRequestPage = await get({
+    query: `query($before: String) {
+      movieConnection(sort: "releaseDate", last: 10, before: $before) {
+        edges {
+          node {
+            id
+            title
+            releaseDate
+          }
+        }
+        pageInfo {
+          hasPreviousPage
+          startCursor
+        }
+      }
+    }`,
+    variables: { before: lastPage.data!.movieConnection.pageInfo.startCursor },
+  });
+
+  expect(overRequestPage.data).toBeDefined();
+  expect(overRequestPage.data!.movieConnection.edges).toHaveLength(4);
+  expect(overRequestPage.data!.movieConnection.edges[0].node.id).toBe(
+    'movies/movie-delta.md'
+  );
+  expect(overRequestPage.data!.movieConnection.edges[1].node.id).toBe(
+    'movies/movie-gamma.md'
+  );
+  expect(overRequestPage.data!.movieConnection.edges[2].node.id).toBe(
+    'movies/movie-beta.md'
+  );
+  expect(overRequestPage.data!.movieConnection.edges[3].node.id).toBe(
+    'movies/movie-alpha.md'
+  );
+  expect(overRequestPage.data!.movieConnection.pageInfo.hasPreviousPage).toBe(
+    false
+  );
 });
